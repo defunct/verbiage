@@ -1,16 +1,16 @@
-package com.goodworkalan.reflective.mix;
+package com.goodworkalan.verbiage.mix;
 
 import com.goodworkalan.go.go.Artifact;
 import com.goodworkalan.mix.ProjectModule;
 import com.goodworkalan.mix.builder.Builder;
 import com.goodworkalan.mix.builder.JavaProject;
 
-public class NoticeMessageProject extends ProjectModule {
+public class VerbiageProject extends ProjectModule {
     @Override
     public void build(Builder builder) {
         builder
             .cookbook(JavaProject.class)
-                .produces(new Artifact("com.github.bigeasy.notice/notice-message/0.1"))
+                .produces(new Artifact("com.github.bigeasy.verbiage/verbiage/0.1"))
                 .test()
                     .depends()
                         .artifact(new Artifact("org.testng/testng/5.10/jdk15"))
