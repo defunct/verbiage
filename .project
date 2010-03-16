@@ -1,6 +1,6 @@
 <projectDescription>
-  <name>notice-message</name>
-  <comment>Notice message formatting.</comment>
+  <name>verbiage</name>
+  <comment>Message formatting using map, list and primitive object graphs and a simple path language.</comment>
   <projects/>
   <buildSpec>
     <buildCommand>
