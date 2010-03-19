@@ -1,4 +1,4 @@
-package com.goodworkalan.notice.message;
+package com.goodworkalan.verbiage;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -10,6 +10,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.testng.annotations.Test;
+
+import com.goodworkalan.verbiage.Message;
 
 /**
  * Test for the CassandraException class.
@@ -46,7 +48,7 @@ public class MessageTest {
         Message message = makeMessage("key", map);
         assertEquals(message.getBundleName(), "test_messages");
         assertEquals(message.getMessageKey(), "key");
-        assertEquals(message.getContext(), "com.goodworkalan.notice.message.MessageTest");
+        assertEquals(message.getContext(), "com.goodworkalan.verbiage.MessageTest");
         assertEquals(((Map<?, ?>) message.getVariables()).get("a"), "b");
     }
     

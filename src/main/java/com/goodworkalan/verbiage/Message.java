@@ -1,4 +1,4 @@
-package com.goodworkalan.notice.message;
+package com.goodworkalan.verbiage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +216,7 @@ public class Message {
             try {
                 bundle = ResourceBundle.getBundle(bundlePath);
             } catch (MissingResourceException e) {
-                bundle = ResourceBundle.getBundle("com.goodworkalan.notice.message.missing");
+                bundle = ResourceBundle.getBundle("com.goodworkalan.verbiage.missing");
             }
             bundles.put(bundlePath, bundle);
         }

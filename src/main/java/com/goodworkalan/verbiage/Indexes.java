@@ -1,4 +1,4 @@
-package com.goodworkalan.notice.message;
+package com.goodworkalan.verbiage;
 
 public class Indexes {
     /**
