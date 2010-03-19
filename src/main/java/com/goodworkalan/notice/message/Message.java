@@ -95,7 +95,7 @@ public class Message {
      *            The array of positioned arguments.
      * @return The given arguments map .
      */
-    public static Object position(Map<Object, Object> arguments, Object...positioned) {
+    public static Map<Object, Object> position(Map<Object, Object> arguments, Object...positioned) {
         for (int i = 0, stop = positioned.length; i < stop; i++) {
             arguments.put("$" + (i + 1), positioned[i]);
         }
