@@ -9,7 +9,11 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentMap;
 
 public class Message {
-    /** Cache of resource bundles. */
+    /**
+     * Cache of resource bundles. Cached to keep from rereading from file.
+     * Bundle is passed in so that it can be collected if a class library is
+     * reloaded.
+     */
   private final ConcurrentMap<String, ResourceBundle> bundles;
     
     /**
@@ -22,14 +26,46 @@ public class Message {
     /** The bundle name to be appended to the context package. */
     private final String bundleName;
     
+    /** The key of the message in the resource bundle. */
     private final String messageKey;
 
+    /** The map of object variables. */
     private final Object variables;
 
     /**
      * <p>
      * The context must always be qualified, it must reference a package other
      * than the default package.
+     * <p>
+     * Positioned arguments are translated into the named parameters named after
+     * their position in the variable portion of the argument list. The first
+     * parameter is named <code>$1</code>, the second is named <code>$2</code>,
+     * the third is named <code>$3</code>, and so on. The parameters are
+     * inserted into the given object map at the root level.
+     * <p>
+     * You reference the positioned arguments using the translated name as you
+     * would reference any named parameter.
+     * 
+     * <code><pre>
+     * 1011: $1,$2~File %s not found while running module %s.
+     * </pre></code>
+     * 
+     * <p>
+     * You can simply specify that the format should use the list of positioned
+     * arguments in order by using the special named parameter <code>$@</code>.
+     * The <code>$@</code> parameter is expanded into <code>$1</code>,
+     * <code>$2</code>, <code>$3</code>, etc. stopping at the first parameter
+     * for which <code>containsKey</code> returns <code>false</code>.
+     * 
+     * <code><pre>
+     * 1011: $@~File %s not found while running module %s.
+     * </pre></code>
+     * 
+     * You can add named parameters before or after <code>$@</code>.
+     * 
+     * <code><pre>
+     * 1011: $@,module~File %s not found in ~%s/foo while running module %s.
+     * </pre></code>
      * 
      * @param bundles
      *            The message bundle cache.
@@ -50,24 +86,60 @@ public class Message {
         this.messageKey = key;
     }
 
+    /**
+     * Add the given positioned parameters to the given argument map.
+     * 
+     * @param variables
+     *            The map of variables.
+     * @param positioned
+     *            The array of positioned arguments.
+     * @return The given arguments map .
+     */
+    public static Object position(Map<Object, Object> arguments, Object...positioned) {
+        for (int i = 0, stop = positioned.length; i < stop; i++) {
+            arguments.put("$" + (i + 1), positioned[i]);
+        }
+        return arguments;
+    }
+
+    /**
+     * Get the name of the resource bundle.
+     * 
+     * @return The resource bundle name.
+     */
     public String getBundleName() {
         return bundleName;
     }
-    
+
+    /**
+     * Get the key of the message in the resource bundle.
+     * 
+     * @return The key of the message in the resource bundle.
+     */
     public String getMessageKey() {
         return messageKey;
     }
-    
+
+    /**
+     * Get the package in which to look for the resource bundle.
+     * 
+     * @return The resource bundle package.
+     */
     public String getContext() {
         return context;
     }
-    
+
+    /**
+     * Get the primitive argument tree.
+     * 
+     * @return The primitive argument tree.
+     */
     public Object getVariables() {
         return variables;
     }
 
     /**
-     * Evaluate the given path against the report structure.
+     * Evaluate the given path against the argument structure.
      * 
      * @param path
      *            The path.
@@ -133,6 +205,9 @@ public class Message {
         }
     }
 
+    /**
+     * Generate the formatted message.
+     */
     public String toString() {
         String packageName = context.substring(0, context.lastIndexOf('.'));
         String bundlePath = packageName + "." + bundleName;
