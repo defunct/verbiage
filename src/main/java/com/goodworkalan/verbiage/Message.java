@@ -209,8 +209,15 @@ public class Message {
      * Generate the formatted message.
      */
     public String toString() {
-        String packageName = context.substring(0, context.lastIndexOf('.'));
-        String bundlePath = packageName + "." + bundleName;
+        int dot = context.lastIndexOf('.');
+        String bundlePath = "com.goodworkalan.verbiage.package";
+        String key = messageKey;
+        if (dot != -1) {
+            String packageName = context.substring(0, dot);
+            bundlePath = packageName + "." + bundleName;
+        } else {
+            key = "defaultPackage";
+        }
         ResourceBundle bundle = bundles.get(bundlePath);
         if (bundle == null) {
             try {
@@ -220,7 +227,6 @@ public class Message {
             }
             bundles.put(bundlePath, bundle);
         }
-        String key = messageKey;
         String format;
         try {
             format = bundle.getString(key);

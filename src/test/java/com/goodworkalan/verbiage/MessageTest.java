@@ -217,4 +217,11 @@ public class MessageTest {
         Message message = makeMessage("positioned", map);
         assertEquals(message.toString(), "First: 1, Second: 2, Third: fred.");
     }
+    
+    /** Test class with no package. */
+    @Test
+    public void noPackage() {
+        Message message = new Message(new ConcurrentHashMap<String, ResourceBundle>(), "DefaultPackaged", "test_messages", "a", new HashMap<Object, Object>());
+        assertEquals(message.toString(), "You cannot use a context class that references the default package.");
+    }
 }
