@@ -183,10 +183,6 @@ public class Message {
                 throw new NoSuchElementException();
             }
         }
-        // My personal preference.
-        if (current instanceof Class<?>) {
-            return ((Class<?>) current).getCanonicalName();
-        }
         return current;
     }
     
@@ -208,6 +204,21 @@ public class Message {
         } catch (NoSuchElementException e) {
             return null;
         }
+    }
+
+    /**
+     * Convert a class to its cannonical class name for format output.
+     * 
+     * @param value
+     *            The object to convert.
+     * @return The object or the cannocial class name if the object is class.
+     */
+    private Object convertClasses(Object value) {
+        // My personal preference.
+        if (value instanceof Class<?>) {
+            return ((Class<?>) value).getCanonicalName();
+        }
+        return value;
     }
 
     /**
@@ -271,7 +282,7 @@ public class Message {
                 List<Object> positioned = new ArrayList<Object>();
                 Map<?, ?> map = (Map<?, ?>) variables;
                 for (int i = 1; map.containsKey("$" + i); i++) {
-                    positioned.add(map.get("$" + i));
+                    positioned.add(convertClasses(map.get("$" + i)));
                 }
                 Object[] resized = new Object[arguments.length + positioned.size() - 1];
                 System.arraycopy(arguments, 0, resized, 0, position);
@@ -282,7 +293,7 @@ public class Message {
             } else {
                 Object argument = "";
                 try {
-                    argument = getValue(name);
+                    argument = convertClasses(getValue(name));
                 } catch (IllegalArgumentException e) {
                     return message("badFormatArgument", name, key, bundlePath);
                 } catch (NoSuchElementException e) {

@@ -65,7 +65,7 @@ public class MessageTest {
      */
     @Test
     public void nestedMapGet() {
-        assertEquals(makePopulatedMessage().get("b.c"), "java.lang.String");
+        assertEquals(makePopulatedMessage().get("b.c"), java.lang.String.class);
     }
     
     /**
