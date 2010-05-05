@@ -1,6 +1,7 @@
 package com.goodworkalan.verbiage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -73,17 +74,17 @@ public class Message {
      *            The message bundle context.
      * @param bundleName
      *            The message bundle file name.
-     * @param key
+     * @param messageKey
      *            The message key.
      * @param variables
      *            The map of variables.
      */
-    public Message(ConcurrentMap<String, ResourceBundle> bundles, String context, String bundleName, String key, Object variables) {
+    public Message(ConcurrentMap<String, ResourceBundle> bundles, String context, String bundleName, String messageKey, Object variables) {
         this.bundles = bundles;
         this.context = context;
         this.bundleName = bundleName;
         this.variables = variables;
-        this.messageKey = key;
+        this.messageKey = messageKey;
     }
 
     /**
@@ -216,14 +217,14 @@ public class Message {
             String packageName = context.substring(0, dot);
             bundlePath = packageName + "." + bundleName;
         } else {
-            key = "defaultPackage";
+            return message("defaultPackage", context, key);
         }
         ResourceBundle bundle = bundles.get(bundlePath);
         if (bundle == null) {
             try {
                 bundle = ResourceBundle.getBundle(bundlePath);
             } catch (MissingResourceException e) {
-                bundle = ResourceBundle.getBundle("com.goodworkalan.verbiage.missing");
+                return message("missingBundle", bundlePath, key);
             }
             bundles.put(bundlePath, bundle);
         }
@@ -231,11 +232,11 @@ public class Message {
         try {
             format = bundle.getString(key);
         } catch (MissingResourceException e) {
-            return key;
+            return message("missingKey", key, bundlePath);
         }
         format = format.trim();
         if (format.length() == 0) {
-            return key;
+            return message("blankMessage", key, bundlePath);
         }
         int tilde = format.indexOf("~");
         if (tilde == -1) {
@@ -279,9 +280,9 @@ public class Message {
                 try {
                     argument = getValue(name);
                 } catch (IllegalArgumentException e) {
-                    return key;
+                    return message("badFormatArgument", name, key, bundlePath);
                 } catch (NoSuchElementException e) {
-                    return key;
+                    return message("missingArgument", name, key, bundlePath);
                 }
                 arguments[position++] = argument;
             }
@@ -289,7 +290,11 @@ public class Message {
         try {
             return String.format(format, arguments);
         } catch (RuntimeException e) {
-            return key;
+            return message("missingArgument", e.getMessage(), key, bundlePath);
         }
+    }
+    
+    private String message(String key, Object...variables) {
+        return new Message(bundles, "com.goodworkalan.verbiage.Message", "missing", key, position(new HashMap<Object, Object>(), variables)).toString();
     }
 }

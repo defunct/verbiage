@@ -162,7 +162,7 @@ public class MessageTest {
     @Test
     public void missingBundle() {
         Message message = new Message(new ConcurrentHashMap<String, ResourceBundle>(), "com.missing.missing.Missing", "test_messages", "key", new HashMap<String, String>());
-        assertEquals(message.toString(), "key");
+        assertEquals(message.toString(), "Missing message bundle [com.missing.missing.test_messages]. Message key is [key]. (This is a meta error message.)");
     }
     
     /**
@@ -170,7 +170,7 @@ public class MessageTest {
      */
     @Test
     public void missingKey() {
-        assertEquals(makePopulatedMessage("missing").toString(), "missing");
+        assertEquals(makePopulatedMessage("missing").toString(), "The message key [missing] cannot be found in bundle [com.goodworkalan.verbiage.test_messages]. (This is a meta error message.)");
     }
     
     /**
@@ -178,7 +178,7 @@ public class MessageTest {
      */
     @Test
     public void emptyMessage() {
-        assertEquals(makePopulatedMessage("empty").toString(), "empty");
+        assertEquals(makePopulatedMessage("empty").toString(), "The message for message key [empty] in bundle [com.goodworkalan.verbiage.test_messages] is blank. (This is a meta error message.)");
     }
     
     /**
@@ -186,7 +186,7 @@ public class MessageTest {
      */
     @Test
     public void badArgument() {
-        assertEquals(makePopulatedMessage("bad_argument").toString(), "bad_argument");
+        assertEquals(makePopulatedMessage("bad_argument").toString(), "Invalid format argument name [b.!] for message key [bad_argument] in bundle [com.goodworkalan.verbiage.test_messages]. (This is a meta error message.)");
     }
     
     /**
@@ -194,7 +194,7 @@ public class MessageTest {
      */
     @Test
     public void noSuchElement() {
-        assertEquals(makePopulatedMessage("no_such_element").toString(), "no_such_element");
+        assertEquals(makePopulatedMessage("no_such_element").toString(), "Cannot find argument named [b.e.8] for message key [no_such_element] in bundle [com.goodworkalan.verbiage.test_messages]. (This is a meta error message.)");
     }
     
     /**
@@ -202,7 +202,7 @@ public class MessageTest {
      */
     @Test
     public void badFormat() {
-        assertEquals(makePopulatedMessage("bad_format").toString(), "bad_format");
+        assertEquals(makePopulatedMessage("bad_format").toString(), "Cannot find argument named [Conversion = s, Flags = 0] for message key [bad_format] in bundle [com.goodworkalan.verbiage.test_messages]. (This is a meta error message.)");
     }
     
     /**
@@ -222,6 +222,6 @@ public class MessageTest {
     @Test
     public void noPackage() {
         Message message = new Message(new ConcurrentHashMap<String, ResourceBundle>(), "DefaultPackaged", "test_messages", "a", new HashMap<Object, Object>());
-        assertEquals(message.toString(), "You cannot use a context class that references the default package.");
+        assertEquals(message.toString(), "Message bundle context [DefaultPackaged] resolves to the default package. Message key is [a]. (This is a meta error message.)");
     }
 }
