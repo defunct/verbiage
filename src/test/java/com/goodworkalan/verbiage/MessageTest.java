@@ -202,7 +202,7 @@ public class MessageTest {
      */
     @Test
     public void badFormat() {
-        assertEquals(makePopulatedMessage("bad_format").toString(), "Cannot find argument named [Conversion = s, Flags = 0] for message key [bad_format] in bundle [com.goodworkalan.verbiage.test_messages]. (This is a meta error message.)");
+        assertEquals(makePopulatedMessage("bad_format").toString(), "Format exception [Conversion = s, Flags = 0] for message key [bad_format] in bundle [com.goodworkalan.verbiage.test_messages]. (This is a meta error message.)");
     }
     
     /**

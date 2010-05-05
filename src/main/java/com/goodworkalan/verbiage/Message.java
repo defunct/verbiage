@@ -290,7 +290,7 @@ public class Message {
         try {
             return String.format(format, arguments);
         } catch (RuntimeException e) {
-            return message("missingArgument", e.getMessage(), key, bundlePath);
+            return message("formatException", e.getMessage(), key, bundlePath);
         }
     }
     
