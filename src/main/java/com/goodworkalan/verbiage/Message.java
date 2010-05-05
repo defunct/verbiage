@@ -183,6 +183,10 @@ public class Message {
                 throw new NoSuchElementException();
             }
         }
+        // My personal preference.
+        if (current instanceof Class<?>) {
+            return ((Class<?>) current).getCanonicalName();
+        }
         return current;
     }
     

@@ -29,7 +29,7 @@ public class MessageTest {
         HashMap<String, Object> subMap = new HashMap<String, Object>();
         map.put("a", "b");
         map.put("b", subMap);
-        subMap.put("c", "d");
+        subMap.put("c", String.class);
         subMap.put("e", Arrays.asList("a", "b", "c"));
         return makeMessage(key, map);
     }
@@ -65,7 +65,7 @@ public class MessageTest {
      */
     @Test
     public void nestedMapGet() {
-        assertEquals(makePopulatedMessage().get("b.c"), "d");
+        assertEquals(makePopulatedMessage().get("b.c"), "java.lang.String");
     }
     
     /**
@@ -134,7 +134,7 @@ public class MessageTest {
      */
     @Test
     public void toStringOneParameter() {
-        assertEquals(makePopulatedMessage("one").toString(), "Hello, d.");
+        assertEquals(makePopulatedMessage("one").toString(), "Hello, java.lang.String.");
     }
     
     
@@ -143,7 +143,7 @@ public class MessageTest {
      */
     @Test
     public void toStringTwoParameters() {
-        assertEquals(makePopulatedMessage("two").toString(), "Hello, d, b.");
+        assertEquals(makePopulatedMessage("two").toString(), "Hello, java.lang.String, b.");
     }
     
     /**
