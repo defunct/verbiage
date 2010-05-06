@@ -207,16 +207,17 @@ public class Message {
     }
 
     /**
-     * Convert a class to its cannonical class name for format output.
+     * Convert a class to its class name for format output. I don't like
+     * the prefix of "class" or "interface."
      * 
      * @param value
      *            The object to convert.
-     * @return The object or the cannocial class name if the object is class.
+     * @return The object or the class name if the object is class.
      */
     private Object convertClasses(Object value) {
         // My personal preference.
         if (value instanceof Class<?>) {
-            return ((Class<?>) value).getCanonicalName();
+            return ((Class<?>) value).getName();
         }
         return value;
     }

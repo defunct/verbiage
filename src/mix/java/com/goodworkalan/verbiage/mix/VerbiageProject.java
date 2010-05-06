@@ -9,7 +9,7 @@ public class VerbiageProject extends ProjectModule {
     public void build(Builder builder) {
         builder
             .cookbook(JavaProject.class)
-                .produces("com.github.bigeasy.verbiage/verbiage/0.1.0.3")
+                .produces("com.github.bigeasy.verbiage/verbiage/0.1.0.4")
                 .test()
                     .depends()
                         .include("org.testng/testng-jdk15/5.10")
