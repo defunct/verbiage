@@ -11,19 +11,30 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.testng.annotations.Test;
 
-import com.goodworkalan.verbiage.Message;
-
 /**
  * Test for the CassandraException class.
  * 
  * @author Alan Gutierrez
  */
 public class MessageTest {
-    /** Create a message with the given variables. */
-    private Message makeMessage(String key, Object variables) {
+    /**
+     * Create a message with the given variables.
+     * 
+     * @param key
+     *            The message key.
+     * @param variables
+     *            The message variables.
+     * @return A populated message.
+     */
+    private Message makeMessage(String key, Map<?, ?> variables) {
         return new Message(new ConcurrentHashMap<String, ResourceBundle>(), MessageTest.class.getCanonicalName(), "test_messages", key, variables);
     }
     
+    /**
+     * Create a populated message with the given message key.
+     * @param key The message key.
+     * @return A populated message.
+     */
     private Message makePopulatedMessage(String key) {
         HashMap<String, Object> map = new HashMap<String, Object>();
         HashMap<String, Object> subMap = new HashMap<String, Object>();
@@ -31,9 +42,15 @@ public class MessageTest {
         map.put("b", subMap);
         subMap.put("c", String.class);
         subMap.put("e", Arrays.asList("a", "b", "c"));
+        map.put("f", new Object[] { 1, "a" });
         return makeMessage(key, map);
     }
-    
+
+    /**
+     * Create a populated message with the message key "key".
+     * 
+     * @return A new populated message.
+     */
     private Message makePopulatedMessage() {
         return makePopulatedMessage("key");
     }
@@ -223,5 +240,27 @@ public class MessageTest {
     public void noPackage() {
         Message message = new Message(new ConcurrentHashMap<String, ResourceBundle>(), "DefaultPackaged", "test_messages", "a", new HashMap<Object, Object>());
         assertEquals(message.toString(), "Message bundle context [DefaultPackaged] resolves to the default package. Message key is [a]. (This is a meta error message.)");
+    }
+    
+    /** Test array in variable hash. */
+    @Test
+    public void arrays() {
+        Message message = makePopulatedMessage("three");
+        assertEquals(message.toString(), "1 a.");
+    }
+
+    /** Test a null path. */
+    @Test
+    public void nullPath() {
+        Message message = makePopulatedMessage();
+        assertNull(message.get("g.b"));
+    }
+    
+
+    /** Test array index out of range. */
+    @Test
+    public void arrayIndexOutOfRange() {
+        Message message = makePopulatedMessage();
+        assertNull(message.get("f.10"));
     }
 }

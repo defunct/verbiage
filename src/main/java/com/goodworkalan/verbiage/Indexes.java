@@ -1,5 +1,10 @@
 package com.goodworkalan.verbiage;
 
+/**
+ * Utility classes to check the validity of object path parts.
+ *
+ * @author Alan Gutierrez
+ */
 public class Indexes {
     /**
      * Determine whether a string represents an integer.
@@ -43,5 +48,4 @@ public class Indexes {
         }
         return true;
     }
-
 }

@@ -9,6 +9,70 @@ import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * A sprintf formatted internationalized message. The message uses an message
+ * that contains the sprintf format strings. Internationalization is obtained by
+ * creating new message bundles for new locales. If a language requires that the
+ * message display its parameters in a different order, sprintf formatting can
+ * handle it.
+ * <p>
+ * The message accepts a concurrent hash map that is used to cache the message
+ * bundles so they do not have to be loaded for each message. The cache is
+ * provided as an argument so that derived classes can keep a static reference
+ * to a single instance of the bundle map. In this way, if the derived class is
+ * reloaded within an application container, but the message class is not, the
+ * old bundle will become unreachable when the class becomes unreachable and the
+ * resource bundle will be collected with the derived class. If a class loader
+ * loads the derived classes that reference the same resource bundle path, the
+ * resource bundle will be reloaded since the old cache is unreachable.
+ * <p>
+ * The context string is used to determine the package to used to find the
+ * resource bundle. The context string is assumed to be a canonical class name.
+ * A string is used instead of the class itself, because sometimes the class
+ * name could be obtained from an existing logging configuration, such as from a
+ * Log4J logger. No attempt is made to validate the class name other than to
+ * attempt to fetch a bundle with it.
+ * <p>
+ * A the name of a class in the default package cannot be used as a context
+ * string.
+ * <p>
+ * The bundle name can be specified so that the message can be used by different
+ * aspects of a program pulling different bundles from the same package. That
+ * is, you might have <code>com.yoyodyne.utility.exceptions.properties</code>
+ * and <code>com.yoyodyne.utility.stderr.properties</code>, one bundle for
+ * exception messages and one bundle for messages written to standard error.
+ * <p>
+ * The variables reference a map of variables. The variables within the map can
+ * be used in the sprintf messages or they can be ignored. The variables are
+ * selected from the map using a comma separated list of dotted object paths.
+ * <p>
+ * <code>1101: threadId,duration~The launch sequence in thread %d lasted %10.3f seconds.</code>
+ * <p>
+ * The above entry in a resource bundle would select the keys
+ * <code>threadId</code> and <code>duration</code> from the map of variables and
+ * pass them to sprintf in that order.
+ * <p>
+ * As noted, you can select items using a dotted object path that will
+ * dereference items in a nested graph of maps and lists where objects are
+ * leaves. The dotted path language will not evaluate public fields or bean
+ * property getters.
+ * <p>
+ * <code>1102: manager.lastName,employee.lastName~The manager %s does not manage the employee %s.</code>
+ * <p>
+ * In the above example, <code>manager</code> and <code>employee</code> are maps
+ * in the variables map. Both have a value mapped to the <code>lastName</code>
+ * key.
+ * <p>
+ * Lists and arrays can be dereferenced using an array or list index for the
+ * path part.
+ * <p>
+ * <code>1103: sort.0,sort.1~Unable to compare %s to %s.</code>
+ * <p>
+ * If no arguments are selected for use in a message, then the message format is
+ * not run through sprintf and is returned as is.
+ * 
+ * @author Alan Gutierrez
+ */
 public class Message {
     /**
      * Cache of resource bundles. Cached to keep from rereading from file.
@@ -31,7 +95,7 @@ public class Message {
     private final String messageKey;
 
     /** The map of object variables. */
-    private final Object variables;
+    private final Map<?, ?> variables;
 
     /**
      * <p>
@@ -79,7 +143,7 @@ public class Message {
      * @param variables
      *            The map of variables.
      */
-    public Message(ConcurrentMap<String, ResourceBundle> bundles, String context, String bundleName, String messageKey, Object variables) {
+    public Message(ConcurrentMap<String, ResourceBundle> bundles, String context, String bundleName, String messageKey, Map<?,?> variables) {
         this.bundles = bundles;
         this.context = context;
         this.bundleName = bundleName;
@@ -135,7 +199,7 @@ public class Message {
      * 
      * @return The primitive argument tree.
      */
-    public Object getVariables() {
+    public Map<?, ?> getVariables() {
         return variables;
     }
 
@@ -167,25 +231,49 @@ public class Message {
                 }
                 current = ((Map<?, ?>) current).get(name);
             } else if (current instanceof List<?>) {
-                if (!Indexes.isInteger(name)) {
-                    if (!Indexes.checkJavaIdentifier(name)) {
-                        throw new IllegalArgumentException();
-                    }
-                    throw new NoSuchElementException();
-                }
-                int index = Integer.parseInt(name, 10);
+                int index = asIndex(name);
                 List<?> list = (List<?>) current;
                 if (index >= list.size()) {
                     throw new NoSuchElementException();
                 }
                 current = list.get(index);
+            } else if (current != null && current.getClass().isArray()) {
+                int index = asIndex(name);
+                Object[] array = (Object[]) current;
+                if (index >= array.length) {
+                    throw new NoSuchElementException();
+                }
+                current = array[index];
             } else {
                 throw new NoSuchElementException();
             }
         }
         return current;
     }
-    
+
+    /**
+     * Convert the path part to an integer index and raise an exception if it is
+     * not a valid integer index.
+     * 
+     * @param name
+     *            The path part.
+     * @return The integer value.
+     * @exception NoSuchElementException
+     *                If the name is not an integer index but is a valid Java
+     *                identifier.
+     * @exception If
+     *                the name is neither an integer index nor a valid Java
+     *                identifier.
+     */
+    private int asIndex(String name) {
+        if (!Indexes.isInteger(name)) {
+            if (!Indexes.checkJavaIdentifier(name)) {
+                throw new IllegalArgumentException();
+            }
+            throw new NoSuchElementException();
+        }
+        return Integer.parseInt(name, 10);
+    }
 
     /**
      * Get the value in the report structure at the given path.
@@ -281,7 +369,7 @@ public class Message {
             start = end;
             if (name.equals("$@")) {
                 List<Object> positioned = new ArrayList<Object>();
-                Map<?, ?> map = (Map<?, ?>) variables;
+                Map<?, ?> map = variables;
                 for (int i = 1; map.containsKey("$" + i); i++) {
                     positioned.add(convertClasses(map.get("$" + i)));
                 }
