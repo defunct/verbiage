@@ -4,8 +4,18 @@ import com.goodworkalan.mix.ProjectModule;
 import com.goodworkalan.mix.builder.Builder;
 import com.goodworkalan.mix.builder.JavaProject;
 
-public class VerbiageProject extends ProjectModule {
-    @Override
+/**
+ * Builds the project definition for Verbiage.
+ *
+ * @author Alan Gutierrez
+ */
+public class VerbiageProject implements ProjectModule {
+    /**
+     * Build the project definition for Verbiage.
+     *
+     * @param builder
+     *          The project builder.
+     */
     public void build(Builder builder) {
         builder
             .cookbook(JavaProject.class)
