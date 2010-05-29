@@ -79,7 +79,7 @@ public class Message {
      * Bundle is passed in so that it can be collected if a class library is
      * reloaded.
      */
-  private final ConcurrentMap<String, ResourceBundle> bundles;
+    private final ConcurrentMap<String, ResourceBundle> bundles;
     
     /**
      * The notice context, which is a class name, but it is not a class, because
