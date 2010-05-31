@@ -3,6 +3,7 @@ package com.goodworkalan.verbiage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
@@ -149,6 +150,13 @@ public class Message {
         this.bundleName = bundleName;
         this.variables = variables;
         this.messageKey = messageKey;
+        String bundlePath = getBundlePath(context, bundleName);
+        if (!bundles.containsKey(bundlePath)) {
+            try {
+                bundles.put(bundlePath, ResourceBundle.getBundle(bundlePath, Locale.getDefault(), Thread.currentThread().getContextClassLoader()));
+            } catch (MissingResourceException e) {
+            }
+        }
     }
 
     /**
@@ -309,28 +317,29 @@ public class Message {
         }
         return value;
     }
+    
+    private static String getBundlePath(String context, String bundleName) {
+        String bundlePath = "com.goodworkalan.verbiage.package";
+        int dot = context.lastIndexOf('.');
+        if (dot != -1) {
+            String packageName = context.substring(0, dot);
+            bundlePath = packageName + "." + bundleName;
+        }
+        return bundlePath;
+    }
 
     /**
      * Generate the formatted message.
      */
     public String toString() {
-        int dot = context.lastIndexOf('.');
-        String bundlePath = "com.goodworkalan.verbiage.package";
         String key = messageKey;
-        if (dot != -1) {
-            String packageName = context.substring(0, dot);
-            bundlePath = packageName + "." + bundleName;
-        } else {
+        String bundlePath = getBundlePath(context, bundleName);
+        if (bundlePath.equals("com.goodworkalan.verbiage.package")) {
             return message("defaultPackage", context, key);
         }
         ResourceBundle bundle = bundles.get(bundlePath);
         if (bundle == null) {
-            try {
-                bundle = ResourceBundle.getBundle(bundlePath);
-            } catch (MissingResourceException e) {
-                return message("missingBundle", bundlePath, key);
-            }
-            bundles.put(bundlePath, bundle);
+            return message("missingBundle", bundlePath, key);
         }
         String format;
         try {
