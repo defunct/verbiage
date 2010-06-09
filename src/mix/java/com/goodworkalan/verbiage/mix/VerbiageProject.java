@@ -2,7 +2,7 @@ package com.goodworkalan.verbiage.mix;
 
 import com.goodworkalan.mix.ProjectModule;
 import com.goodworkalan.mix.builder.Builder;
-import com.goodworkalan.mix.builder.JavaProject;
+import com.goodworkalan.mix.cookbook.JavaProject;
 
 /**
  * Builds the project definition for Verbiage.
@@ -20,10 +20,8 @@ public class VerbiageProject implements ProjectModule {
         builder
             .cookbook(JavaProject.class)
                 .produces("com.github.bigeasy.verbiage/verbiage/0.1.0.8")
-                .test()
-                    .depends()
-                        .include("org.testng/testng-jdk15/5.10")
-                        .end()
+                .depends()
+                    .production("org.testng/testng-jdk15/5.10")
                     .end()
                 .end()
             .end();
