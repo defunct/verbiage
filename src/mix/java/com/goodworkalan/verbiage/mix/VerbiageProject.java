@@ -21,7 +21,7 @@ public class VerbiageProject implements ProjectModule {
             .cookbook(JavaProject.class)
                 .produces("com.github.bigeasy.verbiage/verbiage/0.1.0.8")
                 .depends()
-                    .production("org.testng/testng-jdk15/5.10")
+                    .development("org.testng/testng-jdk15/5.10")
                     .end()
                 .end()
             .end();
