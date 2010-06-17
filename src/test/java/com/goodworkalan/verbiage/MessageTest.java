@@ -6,8 +6,6 @@ import static org.testng.Assert.assertNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.testng.annotations.Test;
 
@@ -27,7 +25,7 @@ public class MessageTest {
      * @return A populated message.
      */
     private Message makeMessage(String key, Map<?, ?> variables) {
-        return new Message(new ConcurrentHashMap<String, ResourceBundle>(), MessageTest.class.getCanonicalName(), "test_messages", key, variables);
+        return new Message(MessageTest.class.getCanonicalName(), "test_messages", key, variables);
     }
     
     /**
@@ -178,7 +176,7 @@ public class MessageTest {
      */
     @Test
     public void missingBundle() {
-        Message message = new Message(new ConcurrentHashMap<String, ResourceBundle>(), "com.missing.missing.Missing", "test_messages", "key", new HashMap<String, String>());
+        Message message = new Message("com.missing.missing.Missing", "test_messages", "key", new HashMap<String, String>());
         assertEquals(message.toString(), "Missing message bundle [com.missing.missing.test_messages]. Message key is [key]. (This is a meta error message.)");
     }
     
@@ -238,7 +236,7 @@ public class MessageTest {
     /** Test class with no package. */
     @Test
     public void noPackage() {
-        Message message = new Message(new ConcurrentHashMap<String, ResourceBundle>(), "DefaultPackaged", "test_messages", "a", new HashMap<Object, Object>());
+        Message message = new Message("DefaultPackaged", "test_messages", "a", new HashMap<Object, Object>());
         assertEquals(message.toString(), "Message bundle context [DefaultPackaged] resolves to the default package. Message key is [a]. (This is a meta error message.)");
     }
     

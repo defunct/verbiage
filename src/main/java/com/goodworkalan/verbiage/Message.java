@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * A sprintf formatted internationalized message. The message uses an message
@@ -75,12 +74,8 @@ import java.util.concurrent.ConcurrentMap;
  * @author Alan Gutierrez
  */
 public class Message {
-    /**
-     * Cache of resource bundles. Cached to keep from rereading from file.
-     * Bundle is passed in so that it can be collected if a class library is
-     * reloaded.
-     */
-    private final ConcurrentMap<String, ResourceBundle> bundles;
+    /** The resource bundle from which to read the message format. */
+    private final ResourceBundle bundle;
     
     /**
      * The notice context, which is a class name, but it is not a class, because
@@ -133,8 +128,6 @@ public class Message {
      * 1011: $@,module~File %s not found in ~%s/foo while running module %s.
      * </pre></code>
      * 
-     * @param bundles
-     *            The message bundle cache.
      * @param context
      *            The message bundle context.
      * @param bundleName
@@ -144,25 +137,36 @@ public class Message {
      * @param variables
      *            The map of variables.
      */
-    public Message(ConcurrentMap<String, ResourceBundle> bundles, String context, String bundleName, String messageKey, Map<?,?> variables) {
-        this.bundles = bundles;
+    public Message(String context, String bundleName, String messageKey, Map<?,?> variables) {
         this.context = context;
         this.bundleName = bundleName;
         this.variables = variables;
         this.messageKey = messageKey;
-        String bundlePath = getBundlePath(context, bundleName);
-        if (!bundles.containsKey(bundlePath)) {
-            try {
-                bundles.put(bundlePath, ResourceBundle.getBundle(bundlePath, Locale.getDefault(), Thread.currentThread().getContextClassLoader()));
-            } catch (MissingResourceException e) {
-            }
-        }
+        this.bundle = getResourceBundle(context, bundleName); 
+    }
+
+	/**
+	 * Get the resource bundle for the given context and bundle name.
+	 * 
+	 * @param context
+	 *            The context.
+	 * @param bundleName
+	 *            The bundle name.
+	 * @return The resource bundle or null if the resource bundle cannot be
+	 *         loaded.
+	 */
+    private static ResourceBundle getResourceBundle(String context, String bundleName) {
+    	try {
+    		return ResourceBundle.getBundle(getBundlePath(context, bundleName), Locale.getDefault(), Thread.currentThread().getContextClassLoader());
+    	} catch (MissingResourceException e) {
+    		return null;
+    	}
     }
 
     /**
      * Add the given positioned parameters to the given argument map.
      * 
-     * @param variables
+     * @param arguments
      *            The map of variables.
      * @param positioned
      *            The array of positioned arguments.
@@ -317,7 +321,22 @@ public class Message {
         }
         return value;
     }
-    
+
+	/**
+	 * Generate a bundle path from the given context and bundle name. The
+	 * context is treated as fully qualified class name of a class that is not
+	 * nested, so that the bundle path is created by combining the package name
+	 * of the class with the bundle name. With a context of
+	 * <code>com.acme.Account</code> and a bundle name of
+	 * <code>exceptions</code> the generated bundle name would be
+	 * <code>com.acme.exceptions</code>.
+	 * 
+	 * @param context
+	 *            The context.
+	 * @param bundleName
+	 *            The bundle name.
+	 * @return The generated bundle name.
+	 */
     private static String getBundlePath(String context, String bundleName) {
         String bundlePath = "com.goodworkalan.verbiage.package";
         int dot = context.lastIndexOf('.');
@@ -337,7 +356,6 @@ public class Message {
         if (bundlePath.equals("com.goodworkalan.verbiage.package")) {
             return message("defaultPackage", context, key);
         }
-        ResourceBundle bundle = bundles.get(bundlePath);
         if (bundle == null) {
             return message("missingBundle", bundlePath, key);
         }
@@ -406,8 +424,17 @@ public class Message {
             return message("formatException", e.getMessage(), key, bundlePath);
         }
     }
-    
+
+	/**
+	 * Generate a meta error message.
+	 * 
+	 * @param key
+	 *            The meta error message key.
+	 * @param variables
+	 *            The message format arguments.
+	 * @return The meta error message.
+	 */
     private String message(String key, Object...variables) {
-        return new Message(bundles, "com.goodworkalan.verbiage.Message", "missing", key, position(new HashMap<Object, Object>(), variables)).toString();
+        return new Message("com.goodworkalan.verbiage.Message", "missing", key, position(new HashMap<Object, Object>(), variables)).toString();
     }
 }
